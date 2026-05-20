@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+
+# Project-OS personal data — ignore everything under data/ except the README.
+# Each user keeps their own people, tasks, knowledge, decisions, sessions.
+# Use `git add -f data/<file>` if you want to publish a specific generic entry.
+data/*
+!data/README.md
+
+# Meeting debrief logs now live under data/debriefs/ — already covered by
+# the data/* allowlist above. No separate entry needed.
+
+# Personalized project instructions (Worker URLs, API tokens, person IDs).
+# project-instructions-template.md is committed as a placeholder template.
+# Save your personalized copy as project-instructions.local.md (ignored).
+project-instructions.local.md
+
+# Local environment files (e.g. ~/.claude/project-os-env.sh sourced by skills)
+*.env
+.env.local
+
+# Dashboard node deps (the dashboard itself IS committed; only node_modules ignored)
+dashboard/node_modules/
+dashboard/package-lock.json
+
+# Migration / export artifacts
+/tmp-export*.json
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
