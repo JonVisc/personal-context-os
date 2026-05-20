@@ -55,6 +55,9 @@
     .stat.danger .v { color: var(--danger); }
     .stat.warn .v { color: var(--warn); }
     .stat.good .v { color: var(--good); }
+    .stat.clickable { cursor: pointer; transition: background 0.12s; }
+    .stat.clickable:hover { background: var(--panel-2); }
+    .stat.active { border-color: var(--accent); }
 
     .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
     .tab {
@@ -155,8 +158,6 @@
   </header>
 
   <main>
-    <section class="stats" id="stats-row"></section>
-
     <div class="tabs">
       <button class="tab active" data-tab="tasks">Tasks</button>
       <button class="tab" data-tab="people">People</button>
@@ -166,6 +167,7 @@
     </div>
 
     <section id="tab-tasks">
+      <section class="stats" id="task-stats-row"></section>
       <div class="filter-row">
         <select id="filter-status">
           <option value="">all statuses</option>
@@ -176,6 +178,15 @@
           <option value="">all ownership</option>
           <option value="mine">mine</option>
           <option value="fyi">fyi</option>
+        </select>
+        <select id="filter-due">
+          <option value="">all due</option>
+          <option value="overdue">overdue</option>
+          <option value="today">due today</option>
+        </select>
+        <select id="filter-blocked">
+          <option value="">all</option>
+          <option value="yes">blocked</option>
         </select>
         <select id="filter-project">
           <option value="">all projects</option>
@@ -248,24 +259,36 @@
     }
 
     function renderStats(s) {
-      const row = document.getElementById('stats-row');
+      const row = document.getElementById('task-stats-row');
       row.innerHTML = '';
       const cards = [
-        { v: s.tasks_overdue, l: 'overdue', cls: 'danger' },
-        { v: s.tasks_due_today, l: 'due today', cls: 'warn' },
-        { v: s.tasks_blocked, l: 'blocked', cls: '' },
-        { v: s.tasks_mine_open, l: 'my open', cls: 'good' },
-        { v: s.tasks_total, l: 'total tasks', cls: '' },
-        { v: s.people_total, l: 'people', cls: '' },
+        { v: s.tasks_overdue,   l: 'overdue',     cls: 'danger', filter: { due: 'overdue', ownership: 'mine', status: 'todo' } },
+        { v: s.tasks_due_today, l: 'due today',   cls: 'warn',   filter: { due: 'today',   ownership: 'mine', status: 'todo' } },
+        { v: s.tasks_blocked,   l: 'blocked',     cls: '',       filter: { blocked: 'yes', status: 'todo' } },
+        { v: s.tasks_mine_open, l: 'my open',     cls: 'good',   filter: { ownership: 'mine', status: 'todo' } },
+        { v: s.tasks_total,     l: 'total tasks', cls: '',       filter: 'clear' },
       ];
       for (const c of cards) {
         row.appendChild(
-          el('div', { class: 'stat ' + c.cls },
+          el('div', { class: 'stat clickable ' + c.cls, onclick: () => applyCardFilter(c.filter) },
             el('div', { class: 'v' }, String(c.v ?? 0)),
             el('div', { class: 'l' }, c.l)
           )
         );
       }
+    }
+
+    function applyCardFilter(f) {
+      const ids = ['filter-status','filter-ownership','filter-project','filter-due','filter-blocked','filter-q'];
+      if (f === 'clear') {
+        for (const id of ids) document.getElementById(id).value = '';
+      } else {
+        document.getElementById('filter-status').value    = f.status    ?? '';
+        document.getElementById('filter-ownership').value = f.ownership ?? '';
+        document.getElementById('filter-due').value       = f.due       ?? '';
+        document.getElementById('filter-blocked').value   = f.blocked   ?? '';
+      }
+      renderTasks();
     }
 
     function renderTasks() {
@@ -275,12 +298,17 @@
       const fStatus = document.getElementById('filter-status').value;
       const fOwn = document.getElementById('filter-ownership').value;
       const fProj = document.getElementById('filter-project').value;
+      const fDue = document.getElementById('filter-due').value;
+      const fBlocked = document.getElementById('filter-blocked').value;
       const q = document.getElementById('filter-q').value.toLowerCase();
 
       let list = tasksCache.slice();
       if (fStatus) list = list.filter(t => t.status === fStatus);
       if (fOwn) list = list.filter(t => t.ownership === fOwn);
       if (fProj) list = list.filter(t => t.project === fProj);
+      if (fDue === 'overdue') list = list.filter(t => t.due_date && t.due_date < today);
+      if (fDue === 'today')   list = list.filter(t => t.due_date === today);
+      if (fBlocked === 'yes') list = list.filter(t => !!t.waiting_on);
       if (q) list = list.filter(t =>
         (t.title || '').toLowerCase().includes(q) ||
         (t.description || '').toLowerCase().includes(q)
@@ -469,7 +497,7 @@
     }
 
     document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
-    ['filter-status', 'filter-ownership', 'filter-project'].forEach(id => document.getElementById(id).addEventListener('change', renderTasks));
+    ['filter-status', 'filter-ownership', 'filter-project', 'filter-due', 'filter-blocked'].forEach(id => document.getElementById(id).addEventListener('change', renderTasks));
     document.getElementById('filter-q').addEventListener('input', renderTasks);
     document.getElementById('people-q').addEventListener('input', renderPeople);
     document.getElementById('drawer').addEventListener('click', (e) => { if (e.target.id === 'drawer') closeDrawer(); });
