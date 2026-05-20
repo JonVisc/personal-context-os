@@ -29,7 +29,12 @@ No external API. Direct file edits.
 For each action item: title, description, priority, suggested due date, who's involved.
 - `ownership: mine` = your responsibility.
 - `ownership: fyi` = someone else's; you're tracking it.
-- **Filter rule:** only create tasks you can close. Non-actionable context → people notes or memory, not FYI tasks. Exception: if a workstream belongs to your boss or a critical stakeholder, FYI tracks may stay actionable.
+- **Filter rule (hard default — drop FYI tasks):** only create tasks the user can close. Non-actionable context → people notes or memory, not FYI `Track:` tasks. Default state for any "interesting but not mine" item = DROP. The system has historically over-collected `Track:` tasks that bloat `/morning` and `/status` while the user has no ability to move them forward.
+- **FYI exception — close-watch list + manager-driven workstreams ONLY.** An FYI task is justified ONLY when one of these is true:
+  - The workstream belongs to a person on the user's **close-watch list** (read from `data/context.md` § "People I Manage / Close Watch").
+  - The workstream is on the user's **manager-driven workstreams list** (read from `data/context.md` § "Manager-Driven Workstreams"). Manager-flagged work IS the user's job even when they're a passive participant.
+  - Anything outside both lists → DROP, even if the meeting felt important.
+- **When dropping an FYI item, do not silently lose it.** If the context has lasting value, capture it as a note in the named person's `data/people/<slug>.md` file (dated `[YYYY-MM-DD]` entry) or as a `data/knowledge/<topic>.md` entry. Tasks are for action; people files + knowledge are for context.
 
 ### People Intel
 - New people mentioned → prepare a new person-file write (frontmatter + notes).
@@ -48,8 +53,18 @@ Show the full output. Do NOT touch files yet. Wait for explicit approval.
 
 ## Step 4: Dedup BEFORE editing
 
+**Critical: assume overlap is the same task.** Recurring meetings re-surface the same workstreams in slightly different language. If an extracted item touches a workstream, person, deliverable, or deadline already represented in open tasks — treat it as the same task with new context, not a separate entry. Cost of merging-and-splitting-later is low; cost of duplicate task spam is high (corrupts `/morning`, `/status`, prioritization).
+
 1. Read `data/people/_index.md`. Scan for spelling variants, nicknames, accented chars.
-2. Read `data/tasks/_index.md`. If the meeting materially updates an existing task, plan an Edit (status change + notes append), not a new entry.
+2. Read `data/tasks/_index.md` AND every `data/tasks/open/<project>.md` file. For each newly extracted task, run dedup checks against open tasks IN THIS ORDER:
+   - **Workstream/project match.** Same project bucket + ≥2 overlapping tags → suspect duplicate.
+   - **Named-people match.** Same `waiting_on` or `assignee` on a related deliverable → suspect duplicate.
+   - **Deliverable-noun match.** Same artifact ("the sister ticket", "the explainer doc", "Mike Su Plaid mtg") = same task even if wording differs.
+   - **Source-meeting recency.** A task created within the last 7 days from a related debrief on the same workstream is almost always the same thread re-surfacing.
+3. Classify each extracted item as **NEW**, **UPDATE-existing** (Edit with notes append + date stamp), or **DROP** (already fully captured — no edit needed, optionally cross-reference in the debrief log strategic notes).
+4. **When uncertain, prefer UPDATE-existing.** Splitting a merged task later is one Edit. De-duplicating a task list after weeks of accumulation is a multi-hour cleanup.
+
+Real-world example: A single broker workstream produced ~14 near-duplicate open tasks across a week of standups/syncs because each `/debrief` created fresh entries instead of appending to the existing thread. They were all eventually batch-closed as "same overall need." Aggressive dedup at this step prevents that.
 
 ## Step 5: Apply changes (after approval)
 

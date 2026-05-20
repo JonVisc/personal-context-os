@@ -35,6 +35,16 @@ Conversational, not interrogative. Group related questions. Don't ask every fiel
 - 90-day target — what should be done by then?
 - 6-month and 12-month framing (loose is fine).
 
+### Close-watch list (required — drives `/debrief` task filter)
+- Are there any people you manage or work closely with whose workstreams you need to track because they're important to your job? (Direct reports, peer engineers you depend on, cross-team partners.)
+- Capture full names + a one-line reason each (e.g. "John Smith — backend engineer on my team").
+- Why this matters: by default `/debrief` drops FYI `Track:` tasks (they're noise — context only you care about). The close-watch list is the **only** exception (plus your manager's workstreams, captured next). If someone matters but isn't on this list, the system will quietly drop intel about their work.
+
+### Manager-driven workstreams (required — second `/debrief` filter exception)
+- Your manager was captured under Identity. What workstreams does your manager actively drive, sponsor, or assign to you that you need to track even when you're not the direct actor? (e.g. strategic initiatives the boss owns, decisions the boss makes that affect your team, things the boss escalates to you.)
+- Capture each as a short label + one-line context (e.g. "Product X strategy — John Doe leading Project Y discussion, decision affects scope").
+- Why this matters: anything your boss flags as important IS important to your job — even if you're a passive participant. `/debrief` keeps FYI `Track:` tasks for these workstreams; outside this list (and outside the close-watch people list), FYI tracks are dropped.
+
 ### Daily cadence (recommended — skip OK)
 - Standing meetings you regularly attend (daily standups, weekly reviews, 1:1s). Names + who runs them.
 - Anything you do every morning / end-of-day that Claude should know about.
@@ -69,6 +79,31 @@ Background paragraph from user's answer.]
 **90-day target:** [user's answer or [PLACEHOLDER]]
 **6-month target:** [user's answer or [PLACEHOLDER]]
 **12-month target:** [user's answer or [PLACEHOLDER]]
+
+---
+
+## People I manage / close watch
+
+Workstreams from these people stay relevant to my job even when I am not the direct actor. FYI `Track:` tasks ARE justified when the named person is on this list. Outside this list (plus the manager-driven workstreams below), FYI tracks are noise — drop them at `/debrief` Step 2 filter.
+
+- **[Full Name]** — [one-line role/reason]
+- **[Full Name]** — [one-line role/reason]
+[...etc, or `[PLACEHOLDER — none yet]` if user skipped]
+
+---
+
+## Manager-driven workstreams
+
+Workstreams my manager actively drives, sponsors, or assigns. Anything my boss flags as important IS important to my job — FYI `Track:` tasks for these stay actionable even when I am a passive participant.
+
+Manager: **[Manager full name]** ([title])
+
+Active workstreams:
+- **[Workstream label]** — [one-line context]
+- **[Workstream label]** — [one-line context]
+[...etc, or `[PLACEHOLDER — none yet]` if user skipped]
+
+Update this list when priorities shift — it drives what `/debrief` keeps vs drops.
 
 ---
 

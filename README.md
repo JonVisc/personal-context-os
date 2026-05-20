@@ -54,7 +54,7 @@ Markdown files defining the cadence commands. Each file specifies a trigger, the
 |---------|------|-------------|
 | `/setup` | First time only | Interviews you and writes `data/context.md` |
 | `/morning` | Start of day | Scans task files, surfaces overdue/blocked, builds phone-readable brief |
-| `/debrief` | After any meeting | Extracts tasks + people intel + strategic analysis, edits files on approval |
+| `/debrief` | After any meeting | Extracts tasks + people intel + strategic analysis, edits files on approval. **Dedups against open tasks first** — assumes overlap = same task |
 | `/close` | End of day | Reconciles what happened, flips task statuses, logs the session |
 | `/status` | Anytime | 10-second pulse — counts, overdue, blocked |
 | `/weekly` | Friday | Full week review — wins, gaps, leadership moves |
@@ -98,6 +98,8 @@ Pass `--copy` instead of the default symlink mode if you need plain copies (e.g.
 Claude reads the repo's `CLAUDE.md`, then interviews you for the essentials (5–10 minutes):
 - Who you are, role, company, manager.
 - What you're driving + 90-day / 6-month / 12-month targets.
+- **Close-watch list** — people you manage / work closely with whose workstreams matter to your job (drives `/debrief` FYI-task filter; without this list, third-party tracking tasks are dropped).
+- **Manager-driven workstreams** — things your boss owns, sponsors, or assigns that you need to track even when you're not the direct actor (second `/debrief` filter exception alongside close-watch).
 - Standing meetings + daily cadence.
 - Watch-fors (gotchas, sensitive stakeholders, name-confusion pairs).
 - Tone preferences (caveman mode, fragments OK, etc.).
