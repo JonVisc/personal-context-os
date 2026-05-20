@@ -164,8 +164,27 @@ project-instructions-template.md   Claude Projects custom-instructions template 
 .gitignore
 skills/                            slash-command definitions (skill-*.md)
 scripts/                           bootstrap + utility scripts
+dashboard/                         optional local browser dashboard (read-only)
 data/                              live state (gitignored except README)
 ```
+
+---
+
+## Optional — Browser Dashboard
+
+`dashboard/` is a local read-only browser view over `data/`. Useful when you want to scan tasks/people/knowledge/decisions/debriefs without reading raw markdown. Reads files directly — no database, no auth.
+
+```bash
+cd dashboard
+npm install
+npm start
+```
+
+Then open <http://localhost:5173>. Override port with `PERSONAL_CONTEXT_OS_PORT=4000 npm start`.
+
+**Read-only by design.** All write endpoints return 501. Mutations stay in Claude `/debrief` and `/close` so file-edit consistency is preserved.
+
+Requires Node 20+. Full API surface + parser notes in `dashboard/README.md`.
 
 ---
 
